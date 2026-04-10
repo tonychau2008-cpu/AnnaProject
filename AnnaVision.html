@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { background: #000; color: #0ff; font-family: sans-serif; text-align: center; margin: 0; padding: 15px; }
+    .vision-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .cam-box { border: 2px solid #0ff; padding: 5px; border-radius: 12px; background: #050505; width: 46%; min-width: 300px; }
+    video { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid #f0f; object-fit: cover; }
+    select { width: 100%; background: #111; color: #0ff; border: 1px solid #0ff; margin-bottom: 8px; padding: 8px; border-radius: 5px; }
+    .control-center { margin-top: 20px; border: 2px solid #ff00ff; padding: 25px; border-radius: 20px; background: rgba(255,0,255,0.05); }
+    .script-input { width: 80%; padding: 10px; background: #222; border: 1px solid #0ff; color: #0ff; margin-bottom: 15px; }
+    .btn-mic { background: #ff00ff; color: #fff; border: none; padding: 15px 60px; font-weight: bold; cursor: pointer; border-radius: 50px; font-size: 18px; box-shadow: 0 0 20px #ff00ff; }
+    .btn-mic.active { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; }
+    #reply { color: #0f0; font-size: 22px; font-weight: bold; margin-top: 20px; text-shadow: 0 0 10px #0f0; }
+  </style>
+</head>
+<body>
+  <h2>💠 ANNA VISION PRO: GITHUB INTEGRATION</h2>
+  <input type="text" id="gasUrl" class="script-input" placeholder="Dán link /exec vào đây...">
+
+  <div class="vision-grid">
+    <div class="cam-box"><select id="s1" onchange="boot(1)"></select><video id="v1" autoplay playsinline muted></video></div>
+    <div class="cam-box"><select id="s2" onchange="boot(2)"></select><video id="v2" autoplay playsinline muted></video></div>
+  </div>
+
+  <div class="control-center">
+    <button id="micBtn" class="btn-mic" onclick="toggle()">🎤 NHẤN ĐỂ NÓI VỚI ANNA</button>
+    <div id="reply">Anna đang chờ chủ nhân dán link /exec...</div>
+  </div>
+
+  <script>
+    let streams = {1:null, 2:null}, rec, isH = false;
+
+    // 1. MỞ MẮT
+    async function init() {
+      const s = await navigator.mediaDevices.getUserMedia({video:true});
+      const d = await navigator.mediaDevices.enumerateDevices();
+      const cams = d.filter(i => i.kind === 'videoinput');
+      [1,2].forEach(n => {
+        const el = document.getElementById('s'+n);
+        el.innerHTML = cams.map((c,i) => `<option value="${c.deviceId}">${c.label || 'Cam '+i}</option>`).join('');
+        if(n===2 && cams.length > 1) el.selectedIndex = 1;
+      });
+      s.getTracks().forEach(t => t.stop());
+      boot(1); boot(2); setupAI();
+    }
+
+    async function boot(n) {
+      const id = document.getElementById('s'+n).value;
+      const v = document.getElementById('v'+n);
+      if(streams[n]) streams[n].getTracks().forEach(t => t.stop());
+      const st = await navigator.mediaDevices.getUserMedia({video:{deviceId:{exact:id}}});
+      streams[n] = st; v.srcObject = st;
+    }
+
+    // 2. TAI & NÃO (GỌI QUA LINK /EXEC)
+    function setupAI() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      rec = new SR(); rec.lang = 'vi-VN';
+      rec.onresult = (e) => {
+        const txt = e.results[0][0].transcript;
+        document.getElementById('reply').innerText = "Anna đang suy nghĩ...";
+        const url = document.getElementById('gasUrl').value;
+        
+        fetch(url + "?q=" + encodeURIComponent(txt))
+          .then(res => res.text())
+          .then(data => {
+            document.getElementById('reply').innerText = data;
+            speak(data); // GẮN MIỆNG
+          })
+          .catch(err => { document.getElementById('reply').innerText = "Lỗi kết nối Não!"; });
+      };
+      rec.onend = () => { isH = false; document.getElementById('micBtn').classList.remove('active'); };
+    }
+
+    function toggle() {
+      if(!isH) { rec.start(); isH=true; document.getElementById('micBtn').classList.add('active'); }
+      else { rec.stop(); }
+    }
+
+    // 3. MIỆNG (LOA)
+    function speak(t) {
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(t);
+      u.lang = 'vi-VN'; u.pitch = 1.1;
+      window.speechSynthesis.speak(u);
+    }
+    window.onload = init;
+  </script>
+</body>
+</html>
