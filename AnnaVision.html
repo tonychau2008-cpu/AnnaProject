@@ -2,32 +2,40 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>ANNA VISION PRO - OPTIMIZED</title>
+  <title>ANNA VISION PRO - UNIFIED CORE</title>
   <style>
     body { background: #000; color: #0ff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 15px; }
     .vision-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-    .cam-box { border: 2px solid #0ff; padding: 5px; border-radius: 12px; background: #050505; width: 46%; min-width: 300px; box-shadow: 0 0 10px #0ff; }
-    video { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid #f0f; object-fit: cover; }
-    .control-center { margin-top: 20px; border: 2px solid #ff00ff; padding: 25px; border-radius: 20px; background: rgba(255,0,255,0.05); }
-    .script-input { width: 85%; padding: 12px; background: #111; border: 1px solid #0ff; color: #0ff; margin-bottom: 15px; border-radius: 5px; font-size: 14px; }
-    .btn-mic { background: #ff00ff; color: #fff; border: none; padding: 15px 60px; font-weight: bold; cursor: pointer; border-radius: 50px; font-size: 18px; box-shadow: 0 0 20px #ff00ff; transition: 0.3s; }
-    .btn-mic.active { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; }
-    #reply { color: #0f0; font-size: 22px; font-weight: bold; margin-top: 20px; text-shadow: 0 0 10px #0f0; min-height: 45px; padding: 0 20px; }
+    .cam-card { border: 2px solid #0ff; padding: 5px; border-radius: 12px; background: #050505; width: 46%; min-width: 300px; box-shadow: 0 0 15px #0ff; }
+    video { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid #f0f; object-fit: cover; background: #111; }
+    
+    .control-panel { margin-top: 20px; border: 2px solid #ff00ff; padding: 25px; border-radius: 20px; background: rgba(255,0,255,0.05); }
+    .script-input { width: 85%; padding: 12px; background: #111; border: 1px solid #0ff; color: #0ff; margin-bottom: 15px; border-radius: 5px; }
+    
+    /* Nút kích hoạt trung tâm */
+    .btn-main { background: #ff00ff; color: #fff; border: none; padding: 15px 40px; font-weight: bold; cursor: pointer; border-radius: 50px; font-size: 16px; box-shadow: 0 0 20px #ff00ff; margin: 5px; }
+    .btn-mic { background: #00ffff; color: #000; }
+    .btn-mic.active { background: #f00; color: #fff; animation: blink 1.5s infinite; }
+    
+    @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    #reply { color: #0f0; font-size: 22px; font-weight: bold; margin-top: 20px; text-shadow: 0 0 10px #0f0; min-height: 45px; }
     #status { color: #aaa; font-style: italic; margin-top: 10px; font-size: 14px; }
   </style>
 </head>
 <body>
-  <h2>💠 ANNA AI SYSTEM - OPTIMIZED VOICE & BRAIN</h2>
-  <input type="text" id="gasUrl" class="script-input" placeholder="Dán link /exec mới nhất vào đây để nối Não...">
+  <h2>💠 ANNA AI SYSTEM - UNIFIED OPERATING</h2>
+  <input type="text" id="gasUrl" class="script-input" placeholder="Dán link /exec vào đây...">
 
   <div class="vision-grid">
     <div class="cam-card"><video id="v1" autoplay playsinline muted></video></div>
     <div class="cam-card"><video id="v2" autoplay playsinline muted></video></div>
   </div>
 
-  <div class="control-center">
-    <button id="micBtn" class="btn-mic" onclick="toggleMic()">🎤 BẤM ĐỂ NÓI VỚI ANNA</button>
-    <div id="status">Hệ thống sẵn sàng...</div>
+  <div class="control-panel">
+    <button class="btn-main" onclick="powerOn()">🔌 KÍCH HOẠT HỆ THỐNG</button>
+    <button id="micBtn" class="btn-main btn-mic" onclick="toggleMic()">🎤 NÓI VỚI ANNA</button>
+    
+    <div id="status">Vui lòng bấm 'Kích hoạt' để mở Camera và Loa...</div>
     <div id="reply"></div>
   </div>
 
@@ -35,27 +43,37 @@
     let rec, isH = false;
     let synth = window.speechSynthesis;
 
-    // 1. MỞ MẮT (CAMERA)
-    async function init() {
+    // HÀM "MỞ KHÓA" CÁC GIÁC QUAN
+    async function powerOn() {
+      document.getElementById('status').innerText = "Đang mở mắt và tai...";
       try {
+        const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
         const devices = await navigator.mediaDevices.enumerateDevices();
         const cams = devices.filter(d => d.kind === 'videoinput');
+        
         for(let i=0; i < Math.min(cams.length, 2); i++) {
           const st = await navigator.mediaDevices.getUserMedia({video: {deviceId: cams[i].deviceId}});
           document.getElementById('v' + (i+1)).srcObject = st;
         }
+        
+        // Kích hoạt miệng (Loa) bằng cách phát một âm thanh rỗng
+        const u = new SpeechSynthesisUtterance("");
+        synth.speak(u);
+        
         setupAI();
-      } catch (e) { document.getElementById('status').innerText = "Lỗi: " + e.message; }
+        document.getElementById('status').innerText = "Hệ thống đã sẵn sàng!";
+      } catch (e) {
+        document.getElementById('status').innerText = "Lỗi: Hãy cấp quyền Camera/Mic trong cài đặt trình duyệt.";
+      }
     }
 
-    // 2. CẤU HÌNH TAI (MICRO)
     function setupAI() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return;
       rec = new SR(); rec.lang = 'vi-VN';
       rec.onresult = (e) => {
         const txt = e.results[0][0].transcript;
-        document.getElementById('status').innerText = "Chủ nhân nói: " + txt;
+        document.getElementById('status').innerText = "Chủ nhân: " + txt;
         sendToBrain(txt);
       };
       rec.onend = () => { isH = false; document.getElementById('micBtn').classList.remove('active'); };
@@ -66,32 +84,27 @@
       else { rec.stop(); }
     }
 
-    // 3. KẾT NỐI NÃO VÀ PHÁT NGÔN
     function sendToBrain(msg) {
       const url = document.getElementById('gasUrl').value;
-      if(!url) { alert("Vui lòng dán link /exec!"); return; }
+      if(!url) { alert("Chưa có link /exec!"); return; }
       document.getElementById('reply').innerText = "Anna đang suy nghĩ...";
       
       fetch(url + "?q=" + encodeURIComponent(msg))
         .then(res => res.text())
         .then(data => {
-          // CHỈ LẤY VĂN BẢN TRẢ LỜI, LOẠI BỎ MÃ MÀU XANH
           const cleanText = data.replace(/<[^>]*>/g, '').trim(); 
           document.getElementById('reply').innerText = cleanText;
           speak(cleanText);
         });
     }
 
-    // 4. CẤU HÌNH MIỆNG (LOA GIỌNG NỮ IDOL)
     function speak(t) {
-      synth.cancel(); // DỨT ĐIỂM: NGỪNG NÓI CÂU CŨ NGAY LẬP TỨC
+      synth.cancel();
       const u = new SpeechSynthesisUtterance(t);
       u.lang = 'vi-VN';
-      u.pitch = 1.4; // Tăng cao độ để tạo giọng Nữ trong sáng
-      u.rate = 1.0;  // Tốc độ chuẩn
+      u.pitch = 1.4; // Giọng Nữ Idol
       synth.speak(u);
     }
-    window.onload = init;
   </script>
 </body>
 </html>
