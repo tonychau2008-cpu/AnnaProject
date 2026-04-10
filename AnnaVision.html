@@ -1,109 +1,120 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>ANNA VISION PRO - TOTAL CONTROL</title>
-  <style>
-    body { background: #000; color: #0ff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 15px; }
-    .vision-grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-    .cam-card { border: 2px solid #0ff; padding: 5px; border-radius: 12px; background: #050505; width: 46%; min-width: 300px; }
-    video { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid #f0f; object-fit: cover; background: #111; }
-    select { width: 100%; background: #111; color: #0ff; border: 1px solid #0ff; margin-bottom: 10px; padding: 5px; }
-    .control-panel { margin-top: 20px; border: 2px solid #ff00ff; padding: 20px; border-radius: 20px; background: rgba(255,0,255,0.05); }
-    .script-input { width: 85%; padding: 12px; background: #111; border: 1px solid #0ff; color: #0ff; margin-bottom: 15px; }
-    .btn-mic { background: #ff00ff; color: #fff; border: none; padding: 15px 50px; font-weight: bold; cursor: pointer; border-radius: 50px; font-size: 16px; box-shadow: 0 0 15px #ff00ff; }
-    .btn-mic.active { background: #0f0; color: #000; box-shadow: 0 0 25px #0f0; }
-    #reply { color: #0f0; font-size: 22px; font-weight: bold; margin-top: 15px; min-height: 40px; }
-  </style>
-</head>
 <body>
-  <h2>💠 ANNA AI SYSTEM - VERSION 5.0</h2>
-  <input type="text" id="gasUrl" class="script-input" placeholder="Dán link /exec vào đây...">
+  <h2>💠 ANNA VISION PRO - CAMO OPTIMIZED</h2>
+  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec vào đây...">
 
   <div class="vision-grid">
-    <div class="cam-card">
-      <select id="sel1" onchange="startCam(1)"></select>
+    <div class="cam-box">
       <video id="v1" autoplay playsinline muted></video>
+      <select id="s1" onchange="switchCam(1)"></select>
     </div>
-    <div class="cam-card">
-      <select id="sel2" onchange="startCam(2)"></select>
+    <div class="cam-box">
       <video id="v2" autoplay playsinline muted></video>
+      <select id="s2" onchange="switchCam(2)"></select>
     </div>
   </div>
 
-  <div class="control-panel">
-    <button id="micBtn" class="btn-mic" onclick="toggleMic()">🎤 BẤM ĐỂ NÓI VỚI ANNA</button>
-    <div id="reply"></div>
+  <div class="control-center">
+    <div class="btn-group">
+      <button class="btn btn-power" onclick="wakeUpAnna()">🔥 TỈNH THỨC HỆ THỐNG</button>
+      <button id="micBtn" class="btn btn-mic" onclick="toggleMic()">🎤 NÓI VỚI ANNA</button>
+    </div>
+    <div id="status">Hãy đảm bảo Camo Studio đang mở trên PC...</div>
+    <div id="reply-text"></div>
   </div>
 
   <script>
-    let activeStreams = {1:null, 2:null}, rec, isH = false;
+    let activeStreams = {1:null, 2:null}, rec, isListening = false;
     let synth = window.speechSynthesis;
 
-    async function init() {
-      // 1. LIỆT KÊ TẤT CẢ CAMERA
-      const stream = await navigator.mediaDevices.getUserMedia({video: true});
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const cams = devices.filter(d => d.kind === 'videoinput');
-      
-      [1,2].forEach(n => {
-        const sel = document.getElementById('sel'+n);
-        sel.innerHTML = cams.map((c, i) => `<option value="${c.deviceId}">${c.label || 'Camera '+i}</option>`).join('');
-        if(n === 2 && cams.length > 1) sel.selectedIndex = 1;
-      });
-      stream.getTracks().forEach(t => t.stop());
-      startCam(1); startCam(2); setupAI();
+    // 1. HÀM TỈNH THỨC: QUÉT SẠCH THIẾT BỊ VÀ ƯU TIÊN CAMO
+    async function wakeUpAnna() {
+      document.getElementById('status').innerText = "Đang tìm mắt Camo...";
+      try {
+        // Yêu cầu quyền để Chrome "nhả" danh sách thiết bị
+        await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const cams = devices.filter(d => d.kind === 'videoinput');
+        
+        [1,2].forEach(n => {
+          const sel = document.getElementById('s'+n);
+          sel.innerHTML = cams.map((c, i) => 
+            `<option value="${c.deviceId}">${c.label || 'Camera ' + i}</option>`
+          ).join('');
+          
+          // CHIẾN THUẬT: Tự động tìm thiết bị có tên "Camo" để gán vào Cam 2
+          if(n === 2) {
+             const camoIdx = cams.findIndex(c => c.label.toLowerCase().includes('camo'));
+             if(camoIdx !== -1) sel.selectedIndex = camoIdx;
+             else if(cams.length > 1) sel.selectedIndex = 1;
+          }
+        });
+
+        switchCam(1); switchCam(2);
+        setupRecognition();
+        document.getElementById('status').innerText = "Đã tìm thấy " + cams.length + " mắt!";
+      } catch (e) {
+        document.getElementById('status').innerText = "Lỗi: Hãy bấm vào ổ khóa trên thanh địa chỉ để cho phép Cam/Mic.";
+      }
     }
 
-    async function startCam(n) {
-      const id = document.getElementById('sel'+n).value;
+    async function switchCam(n) {
+      const id = document.getElementById('s'+n).value;
+      if(!id) return;
       if(activeStreams[n]) activeStreams[n].getTracks().forEach(t => t.stop());
-      const st = await navigator.mediaDevices.getUserMedia({video: {deviceId: id}});
+      const st = await navigator.mediaDevices.getUserMedia({video: {deviceId: {exact: id}}});
       activeStreams[n] = st;
       document.getElementById('v'+n).srcObject = st;
     }
 
-    function setupAI() {
+    // 2. TAI (SPEECH RECOGNITION)
+    function setupRecognition() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return;
       rec = new SR(); rec.lang = 'vi-VN';
       rec.onresult = (e) => {
-        const txt = e.results[0][0].transcript;
-        const url = document.getElementById('gasUrl').value;
-        document.getElementById('reply').innerText = "Anna đang suy nghĩ...";
-        fetch(url + "?q=" + encodeURIComponent(txt))
-          .then(res => res.text())
-          .then(data => {
-            const clean = data.replace(/<[^>]*>/g, '').trim();
-            document.getElementById('reply').innerText = clean;
-            speak(clean);
-          });
+        const text = e.results[0][0].transcript;
+        document.getElementById('status').innerText = "Bạn nói: " + text;
+        askBrain(text);
       };
-      rec.onend = () => { isH = false; document.getElementById('micBtn').classList.remove('active'); };
+      rec.onend = () => { isListening = false; document.getElementById('micBtn').classList.remove('active'); };
     }
 
     function toggleMic() {
-      if(!isH) { rec.start(); isH=true; document.getElementById('micBtn').classList.add('active'); }
+      if(!isListening) { rec.start(); isListening = true; document.getElementById('micBtn').classList.add('active'); }
       else { rec.stop(); }
     }
 
-    // 🚀 CHỈNH GIỌNG NỮ THUẦN VIỆT
+    // 3. NÃO (GỌI GEMINI QUA GAS)
+    function askBrain(msg) {
+      const url = document.getElementById('gasUrl').value;
+      if(!url) return alert("Chưa dán link /exec!");
+      document.getElementById('reply-text').innerText = "Anna đang suy nghĩ...";
+      fetch(url + "?q=" + encodeURIComponent(msg))
+        .then(res => res.text())
+        .then(data => {
+          const clean = data.replace(/<[^>]*>/g, '').trim();
+          document.getElementById('reply-text').innerText = clean;
+          speak(clean);
+        });
+    }
+
+    // 4. MIỆNG (ÉP GIỌNG NỮ VIỆT NAM)
     function speak(t) {
       synth.cancel();
       const u = new SpeechSynthesisUtterance(t);
       u.lang = 'vi-VN';
       
-      // Tìm giọng nữ Việt Nam trong hệ thống
       const voices = synth.getVoices();
-      const nu = voices.find(v => v.lang.includes('vi') && (v.name.includes('Female') || v.name.includes('nữ') || v.name.includes('Google')));
-      if(nu) u.voice = nu;
+      // Ưu tiên tìm giọng nữ của Google hoặc Microsoft trên trình duyệt
+      const female = voices.find(v => v.lang.includes('vi') && (v.name.includes('Female') || v.name.includes('nữ') || v.name.includes('Google')));
+      if(female) u.voice = female;
       
-      u.pitch = 1.3; // Cao độ nữ tính
+      u.pitch = 1.5; // Cao độ Idol
       u.rate = 1.0;
       synth.speak(u);
     }
-    // Load giọng đọc khi hệ thống sẵn sàng
+    
     window.speechSynthesis.onvoiceschanged = () => synth.getVoices();
-    window.onload = init;
+    window.onload = () => { document.getElementById('status').innerText = "Hãy bật Camo Studio, sau đó nhấn TỈNH THỨC."; };
   </script>
 </body>
-</html>
