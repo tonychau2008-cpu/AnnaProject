@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>ANNA IDOL 2.5 - HYPER VISION</title>
+  <title>ANNA IDOL 2.5 - SUPREME</title>
   <style>
     body { background: #000; color: #0ff; font-family: sans-serif; text-align: center; margin: 0; padding: 10px; }
     .vision-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
@@ -19,21 +19,20 @@
   </style>
 </head>
 <body>
-  <h2>💠 ANNA IDOL - VERSION 2.5 HYPER</h2>
-  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec (Não 2.5 Hyper) vào đây...">
+  <h2>💠 ANNA IDOL - VERSION 2.5 PRO</h2>
+  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec (Mới nhất) vào đây...">
   <div class="vision-grid">
     <div class="cam-box"><video id="v1" autoplay playsinline muted></video><select id="s1" onchange="ch(1)"></select></div>
     <div class="cam-box"><video id="v2" autoplay playsinline muted></video><select id="s2" onchange="ch(2)"></select></div>
   </div>
   <div class="control">
-    <button id="pBtn" class="btn" onclick="init()">⚡ KÍCH HOẠT 2.5</button>
+    <button id="pBtn" class="btn" onclick="init()">⚡ TỈNH THỨC ANNA</button>
     <button id="mBtn" class="btn" onclick="talk()">🎤 NÓI VỚI ANNA IDOL</button>
     <div id="reply"></div>
   </div>
   <script>
     let streams = {1:null, 2:null}, rec, isL = false, synth = window.speechSynthesis;
     async function init() {
-      document.getElementById('reply').innerText = "Đang kích hoạt hệ thống...";
       try {
         await navigator.mediaDevices.getUserMedia({video:true, audio:true});
         const devs = await navigator.mediaDevices.enumerateDevices();
@@ -48,7 +47,7 @@
         });
         ch(1); ch(2); setupAI();
         synth.speak(new SpeechSynthesisUtterance("")); 
-        document.getElementById('reply').innerText = "ANNA IDOL 2.5 ĐÃ SẴN SÀNG!";
+        document.getElementById('reply').innerText = "Hệ thống sẵn sàng!";
       } catch (e) { document.getElementById('reply').innerText = "Lỗi: " + e.message; }
     }
     async function ch(n) {
@@ -63,7 +62,7 @@
       rec.onresult = (e) => {
         const txt = e.results[0][0].transcript;
         const url = document.getElementById('gasUrl').value;
-        document.getElementById('reply').innerText = "Anna 2.5 đang nghe...";
+        document.getElementById('reply').innerText = "Anna đang nghe...";
         fetch(url + "?q=" + encodeURIComponent(txt)).then(r => r.text()).then(d => {
           const clean = d.replace(/<[^>]*>/g, '').trim();
           document.getElementById('reply').innerText = clean;
