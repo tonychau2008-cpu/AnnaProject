@@ -2,36 +2,39 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>ANNA 2.0 SUPREME</title>
+  <title>ANNA IDOL - VISION PRO 2.0</title>
   <style>
-    body { background: #000; color: #0ff; font-family: sans-serif; text-align: center; margin: 0; padding: 15px; }
-    .vision-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-    .cam-box { border: 2px solid #0ff; border-radius: 10px; width: 45%; min-width: 300px; padding: 10px; background: #050505; }
-    video { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid #f0f; background: #111; }
-    .control { border: 2px solid #f0f; border-radius: 20px; padding: 20px; margin-top: 15px; background: rgba(255,0,255,0.05); }
-    .input-url { width: 90%; padding: 10px; background: #111; border: 1px solid #0ff; color: #0ff; margin-bottom: 15px; }
-    .btn { padding: 15px 40px; font-weight: bold; border: none; cursor: pointer; border-radius: 50px; margin: 5px; font-size: 16px; }
-    #powerBtn { background: #0ff; color: #000; }
-    #micBtn { background: #f0f; color: #fff; }
-    #micBtn.active { background: #0f0; color: #000; box-shadow: 0 0 20px #0f0; }
-    #reply { color: #0f0; font-size: 24px; font-weight: bold; margin-top: 15px; min-height: 50px; }
+    body { background: #000; color: #0ff; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 15px; }
+    .vision-grid { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .cam-box { border: 2px solid #0ff; border-radius: 12px; width: 45%; min-width: 320px; padding: 10px; background: #050505; box-shadow: 0 0 10px #0ff; }
+    video { width: 100%; aspect-ratio: 16/9; border-radius: 8px; border: 1px solid #f0f; background: #111; object-fit: cover; }
+    select { width: 100%; background: #111; color: #0ff; border: 1px solid #0ff; margin-top: 8px; padding: 5px; border-radius: 5px; }
+    .control { border: 2px solid #f0f; border-radius: 20px; padding: 25px; background: rgba(255,0,255,0.05); display: inline-block; width: 85%; }
+    .input-url { width: 90%; padding: 12px; background: #111; border: 1px solid #0ff; color: #0ff; margin-bottom: 15px; border-radius: 8px; }
+    .btn { padding: 15px 40px; font-weight: bold; border: none; cursor: pointer; border-radius: 50px; margin: 5px; font-size: 16px; transition: 0.3s; }
+    #pBtn { background: #0ff; color: #000; box-shadow: 0 0 15px #0ff; }
+    #mBtn { background: #f0f; color: #fff; box-shadow: 0 0 15px #f0f; }
+    #mBtn.active { background: #0f0; color: #000; box-shadow: 0 0 25px #0f0; }
+    #reply { color: #0f0; font-size: 26px; font-weight: bold; margin-top: 20px; text-shadow: 0 0 10px #0f0; min-height: 50px; }
   </style>
 </head>
 <body>
-  <h2>💠 ANNA VISION PRO 2.0</h2>
-  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec mới vào đây...">
+  <h2>💠 ANNA IDOL - VERSION 2.0 FLASH</h2>
+  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec (MỚI) của ANNA IDOL vào đây...">
   <div class="vision-grid">
-    <div class="cam-box"><video id="v1" autoplay playsinline muted></video><select id="s1" onchange="chCam(1)"></select></div>
-    <div class="cam-box"><video id="v2" autoplay playsinline muted></video><select id="s2" onchange="chCam(2)"></select></div>
+    <div class="cam-box"><video id="v1" autoplay playsinline muted></video><select id="s1" onchange="ch(1)"></select></div>
+    <div class="cam-box"><video id="v2" autoplay playsinline muted></video><select id="s2" onchange="ch(2)"></select></div>
   </div>
   <div class="control">
-    <button id="powerBtn" class="btn" onclick="init()">⚡ KÍCH HOẠT</button>
-    <button id="micBtn" class="btn" onclick="talk()">🎤 NÓI VỚI ANNA</button>
+    <button id="pBtn" class="btn" onclick="init()">🔥 TỈNH THỨC HỆ THỐNG</button>
+    <button id="mBtn" class="btn" onclick="talk()">🎤 NÓI VỚI ANNA IDOL</button>
     <div id="reply"></div>
   </div>
   <script>
     let streams = {1:null, 2:null}, rec, isL = false, synth = window.speechSynthesis;
+    
     async function init() {
+      document.getElementById('reply').innerText = "Đang tìm kiếm mắt Camo và PC...";
       await navigator.mediaDevices.getUserMedia({video:true, audio:true});
       const devs = await navigator.mediaDevices.enumerateDevices();
       const cams = devs.filter(d => d.kind === 'videoinput');
@@ -43,39 +46,44 @@
           sel.selectedIndex = camoIdx !== -1 ? camoIdx : (cams.length > 1 ? 1 : 0);
         }
       });
-      chCam(1); chCam(2); setupAI();
+      ch(1); ch(2); setupAI();
       synth.speak(new SpeechSynthesisUtterance("")); // Mở khóa âm thanh
-      document.getElementById('reply').innerText = "Anna 2.0 đã sẵn sàng.";
+      document.getElementById('reply').innerText = "ANNA IDOL đã tỉnh thức!";
     }
-    async function chCam(n) {
+
+    async function ch(n) {
       const id = document.getElementById('s'+n).value;
       if(streams[n]) streams[n].getTracks().forEach(t => t.stop());
       streams[n] = await navigator.mediaDevices.getUserMedia({video: {deviceId: id}});
       document.getElementById('v'+n).srcObject = streams[n];
     }
+
     function setupAI() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       rec = new SR(); rec.lang = 'vi-VN';
       rec.onresult = (e) => {
         const txt = e.results[0][0].transcript;
         const url = document.getElementById('gasUrl').value;
-        document.getElementById('reply').innerText = "Anna đang suy nghĩ...";
+        document.getElementById('reply').innerText = "Anna Idol đang suy nghĩ...";
         fetch(url + "?q=" + encodeURIComponent(txt)).then(r => r.text()).then(d => {
           const clean = d.replace(/<[^>]*>/g, '').trim();
           document.getElementById('reply').innerText = clean;
           speak(clean);
         });
       };
-      rec.onend = () => { isL=false; document.getElementById('micBtn').classList.remove('active'); };
+      rec.onend = () => { isL=false; document.getElementById('mBtn').classList.remove('active'); };
     }
-    function talk() { if(!isL) { rec.start(); isL=true; document.getElementById('micBtn').classList.add('active'); } else { rec.stop(); } }
+
+    function talk() { if(!isL) { rec.start(); isL=true; document.getElementById('mBtn').classList.add('active'); } else { rec.stop(); } }
+
     function speak(t) {
       synth.cancel();
-      const u = new SpeechSynthesisUtterance(t); u.lang = 'vi-VN';
+      const u = new SpeechSynthesisUtterance(t); u.lang='vi-VN';
       const vs = synth.getVoices();
       const f = vs.find(v => v.lang.includes('vi') && (v.name.includes('Female') || v.name.includes('nữ') || v.name.includes('Google')));
       if(f) u.voice = f;
-      u.pitch = 1.4; synth.speak(u);
+      u.pitch = 1.4; // Giọng Nữ Idol
+      synth.speak(u);
     }
     window.speechSynthesis.onvoiceschanged = () => synth.getVoices();
   </script>
