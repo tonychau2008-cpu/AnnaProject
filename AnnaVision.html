@@ -2,35 +2,46 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ANNA IDOL MASTER 2026</title>
   <style>
-    :root { --neon: #0ff; --pink: #f0f; --bg: #000; }
-    body { background: var(--bg); color: var(--neon); font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 15px; }
+    :root { --neon: #0ff; --pink: #f0f; --bg: #000; --green: #0f0; }
+    body { background: var(--bg); color: var(--neon); font-family: 'Segoe UI', Roboto, sans-serif; text-align: center; margin: 0; padding: 15px; overflow-x: hidden; }
+    
+    h2 { text-transform: uppercase; letter-spacing: 3px; text-shadow: 0 0 10px var(--neon); margin-bottom: 20px; }
+
+    /* Khung Camera */
     .vision-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
-    .cam-box { border: 2px solid var(--neon); border-radius: 15px; background: #050505; width: 46%; min-width: 330px; padding: 10px; box-shadow: 0 0 20px rgba(0,255,255,0.2); transition: 0.3s; }
-    .cam-box:hover { box-shadow: 0 0 30px var(--neon); }
+    .cam-box { border: 2px solid var(--neon); border-radius: 15px; background: #050505; width: 46%; min-width: 330px; padding: 10px; box-shadow: 0 0 20px rgba(0,255,255,0.1); transition: 0.3s; }
+    .cam-box:hover { box-shadow: 0 0 30px var(--neon); border-color: #fff; }
     video { width: 100%; aspect-ratio: 16/9; border-radius: 10px; border: 1px solid var(--pink); object-fit: cover; background: #111; }
-    select { width: 100%; background: #111; color: var(--neon); border: 1px solid var(--neon); margin-top: 10px; padding: 8px; border-radius: 5px; cursor: pointer; }
+    select { width: 100%; background: #111; color: var(--neon); border: 1px solid var(--neon); margin-top: 10px; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 14px; }
+
+    /* Trung tâm điều khiển */
+    .control-center { border: 2px solid var(--pink); border-radius: 25px; padding: 30px; background: rgba(255,0,255,0.05); display: inline-block; width: 90%; max-width: 850px; box-shadow: 0 0 20px rgba(255,0,255,0.1); }
+    .input-url { width: 94%; padding: 12px; background: #111; border: 1px solid var(--neon); color: var(--neon); margin-bottom: 20px; border-radius: 10px; outline: none; text-align: center; font-size: 14px; }
     
-    .control-center { border: 2px solid var(--pink); border-radius: 25px; padding: 30px; background: rgba(255,0,255,0.05); display: inline-block; width: 85%; max-width: 800px; }
-    .input-url { width: 92%; padding: 12px; background: #111; border: 1px solid var(--neon); color: var(--neon); margin-bottom: 20px; border-radius: 10px; outline: none; }
+    .btn-group { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+    .btn { padding: 15px 40px; font-weight: bold; border: none; cursor: pointer; border-radius: 50px; font-size: 16px; text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; min-width: 220px; }
     
-    .btn-group { display: flex; justify-content: center; gap: 20px; }
-    .btn { padding: 15px 45px; font-weight: bold; border: none; cursor: pointer; border-radius: 50px; font-size: 16px; text-transform: uppercase; transition: 0.3s; letter-spacing: 1px; }
     #pBtn { background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon); }
-    #mBtn { background: var(--pink); color: #fff; box-shadow: 0 0 15px var(--pink); }
-    #mBtn.active { background: #0f0; color: #000; box-shadow: 0 0 30px #0f0; animation: pulse 1s infinite; }
+    #pBtn:hover { transform: scale(1.05); background: #fff; }
     
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-    #reply { color: #0f0; font-size: 28px; font-weight: bold; margin-top: 25px; text-shadow: 0 0 10px #0f0; min-height: 60px; line-height: 1.4; }
-    #status { color: #888; font-size: 14px; margin-top: 10px; }
+    #mBtn { background: var(--pink); color: #fff; box-shadow: 0 0 15px var(--pink); }
+    #mBtn.active { background: var(--green); color: #000; box-shadow: 0 0 30px var(--green); animation: pulse 1s infinite; }
+    
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+
+    /* Phản hồi từ AI */
+    #status { color: #888; font-size: 14px; margin-top: 15px; font-style: italic; }
+    #reply { color: var(--green); font-size: 28px; font-weight: bold; margin-top: 25px; text-shadow: 0 0 10px rgba(0,255,0,0.5); min-height: 80px; line-height: 1.4; padding: 0 20px; }
   </style>
 </head>
 <body>
 
-  <h2>💠 ANNA IDOL MASTER 2026 - ONLINE</h2>
+  <h2>💠 ANNA IDOL MASTER 2026</h2>
   
-  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec mới nhất của Anna vào đây...">
+  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec (Bản mới nhất) của bạn vào đây...">
 
   <div class="vision-grid">
     <div class="cam-box">
@@ -46,24 +57,27 @@
   <div class="control-center">
     <div class="btn-group">
       <button id="pBtn" class="btn" onclick="wakeUp()">⚡ Tỉnh Thức Hệ Thống</button>
-      <button id="mBtn" class="btn" onclick="toggleMic()">🎤 Nói với Anna</button>
+      <button id="mBtn" class="btn" onclick="toggleMic()">🎤 Nói với Anna Idol</button>
     </div>
-    <div id="status">Sẵn sàng nhận lệnh từ chủ nhân...</div>
+    <div id="status">Đang đợi chủ nhân kích hoạt...</div>
     <div id="reply"></div>
   </div>
 
   <script>
-    let activeStreams = {1:null, 2:null}, rec, isL = false;
+    let activeStreams = {1:null, 2:null}, rec, isListening = false;
     let synth = window.speechSynthesis;
 
-    // Tự động load lại link GAS cũ nếu đã từng dán
+    // 1. Tự động lấy lại link cũ đã lưu
     window.onload = () => {
-      const savedUrl = localStorage.getItem('annaGasUrl');
+      const savedUrl = localStorage.getItem('annaMasterUrl');
       if(savedUrl) document.getElementById('gasUrl').value = savedUrl;
+      // Load voices sớm để sẵn sàng
+      synth.getVoices();
     };
 
+    // 2. Kích hoạt Camera và Mic
     async function wakeUp() {
-      document.getElementById('status').innerText = "Đang kết nối ngũ quan...";
+      document.getElementById('status').innerText = "Đang kết nối thị giác và thính giác...";
       try {
         await navigator.mediaDevices.getUserMedia({video: true, audio: true});
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -71,9 +85,9 @@
         
         [1,2].forEach(n => {
           const sel = document.getElementById('s'+n);
-          sel.innerHTML = cams.map((c, i) => `<option value="${c.deviceId}">${c.label || 'Camera ' + i}</option>`).join('');
+          sel.innerHTML = cams.map((c, i) => `<option value="${c.deviceId}">${c.label || 'Camera ' + (i+1)}</option>`).join('');
           
-          // Ưu tiên chọn Camo cho khung số 2
+          // Ưu tiên chọn Camo Camera cho khung số 2 nếu có
           if(n === 2) {
             const camoIdx = cams.findIndex(c => c.label.toLowerCase().includes('camo'));
             if(camoIdx !== -1) sel.selectedIndex = camoIdx;
@@ -81,16 +95,23 @@
           }
         });
 
-        switchCam(1); switchCam(2);
-        setupAI();
-        synth.speak(new SpeechSynthesisUtterance("")); // Mở khóa âm thanh trình duyệt
-        document.getElementById('status').innerText = "ANNA IDOL MASTER ĐÃ SẴN SÀNG!";
-        document.getElementById('reply').innerText = "Chào chủ nhân, Anna đã tỉnh giấc.";
+        await switchCam(1); 
+        await switchCam(2);
+        setupSpeechRecognition();
+        
+        // Mở khóa âm thanh trình duyệt
+        const silent = new SpeechSynthesisUtterance("");
+        synth.speak(silent);
+        
+        document.getElementById('status').innerText = "HỆ THỐNG ĐÃ TRỰC TUYẾN!";
+        document.getElementById('reply').innerText = "Chào chủ nhân, Anna đã sẵn sàng nhận lệnh.";
       } catch (e) {
-        document.getElementById('status').innerText = "Lỗi: Hãy cấp quyền Camera/Mic trên trình duyệt!";
+        document.getElementById('status').innerText = "Lỗi: Hãy đảm bảo bạn đã cấp quyền Camera/Mic!";
+        console.error(e);
       }
     }
 
+    // 3. Đổi Camera
     async function switchCam(n) {
       const id = document.getElementById('s'+n).value;
       if(!id) return;
@@ -100,54 +121,89 @@
       document.getElementById('v'+n).srcObject = st;
     }
 
-    function setupAI() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) return alert("Trình duyệt không hỗ trợ nhận diện giọng nói!");
-      rec = new SR();
+    // 4. Thiết lập nhận diện giọng nói
+    function setupSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        document.getElementById('status').innerText = "Trình duyệt này không hỗ trợ giọng nói!";
+        return;
+      }
+      rec = new SpeechRecognition();
       rec.lang = 'vi-VN';
-      rec.onresult = (e) => {
-        const text = e.results[0][0].transcript;
+      rec.continuous = false;
+      rec.interimResults = false;
+
+      rec.onresult = (event) => {
+        const text = event.results[0][0].transcript;
         document.getElementById('status').innerText = "Bạn vừa nói: " + text;
-        askAnna(text);
+        sendToAnna(text);
       };
-      rec.onend = () => { isL = false; document.getElementById('mBtn').classList.remove('active'); };
+
+      rec.onend = () => {
+        isListening = false;
+        document.getElementById('mBtn').classList.remove('active');
+      };
+
+      rec.onerror = (e) => {
+        console.error("Lỗi nhận diện:", e.error);
+        isListening = false;
+        document.getElementById('mBtn').classList.remove('active');
+      };
     }
 
     function toggleMic() {
-      if(!isL) { rec.start(); isL = true; document.getElementById('mBtn').classList.add('active'); }
-      else { rec.stop(); }
+      if(!rec) return alert("Vui lòng nhấn 'Tỉnh Thức Hệ Thống' trước!");
+      if(!isListening) {
+        rec.start();
+        isListening = true;
+        document.getElementById('mBtn').classList.add('active');
+        document.getElementById('status').innerText = "Anna đang lắng nghe...";
+      } else {
+        rec.stop();
+      }
     }
 
-    function askAnna(msg) {
-      const url = document.getElementById('gasUrl').value;
-      if(!url) return alert("Chủ nhân chưa dán link /exec!");
-      localStorage.setItem('annaGasUrl', url); // Lưu lại link cho lần sau
+    // 5. Gửi dữ liệu tới Google Apps Script
+    function sendToAnna(msg) {
+      const url = document.getElementById('gasUrl').value.trim();
+      if(!url) return alert("Chủ nhân hãy dán link /exec vào đã nhé!");
       
-      document.getElementById('reply').innerText = "Anna đang tư duy...";
+      localStorage.setItem('annaMasterUrl', url); // Lưu lại link
+      document.getElementById('reply').innerText = "Anna đang suy nghĩ...";
+
       fetch(url + "?q=" + encodeURIComponent(msg))
         .then(res => res.text())
         .then(data => {
-          const clean = data.replace(/<[^>]*>/g, '').trim();
-          document.getElementById('reply').innerText = clean;
-          speak(clean);
+          // Xử lý dữ liệu thô nếu có dính tag HTML từ GAS
+          const cleanText = data.replace(/<[^>]*>/g, '').trim();
+          document.getElementById('reply').innerText = cleanText;
+          speak(cleanText);
         })
         .catch(err => {
-          document.getElementById('reply').innerText = "Lỗi kết nối: Chủ nhân hãy kiểm tra link /exec!";
+          console.error(err);
+          document.getElementById('reply').innerText = "Lỗi kết nối: Chủ nhân kiểm tra lại link /exec hoặc quyền Everyone nhé!";
         });
     }
 
-    function speak(t) {
-      synth.cancel();
-      const u = new SpeechSynthesisUtterance(t);
-      u.lang = 'vi-VN';
+    // 6. Phát âm thanh (Giọng nữ Idol)
+    function speak(text) {
+      synth.cancel(); // Ngắt câu cũ nếu đang nói
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'vi-VN';
+      
       const voices = synth.getVoices();
-      const female = voices.find(v => v.lang.includes('vi') && (v.name.includes('Female') || v.name.includes('nữ') || v.name.includes('Google')));
-      if(female) u.voice = female;
-      u.pitch = 1.4; // Ép giọng nữ cao Idol
-      u.rate = 1.0;
-      synth.speak(u);
+      // Tìm giọng nữ tiếng Việt của Google hoặc hệ thống
+      const femaleVoice = voices.find(v => v.lang.includes('vi') && 
+        (v.name.includes('Female') || v.name.includes('nữ') || v.name.includes('Google')));
+      
+      if(femaleVoice) utterance.voice = femaleVoice;
+      
+      utterance.pitch = 1.4; // Giọng cao, trẻ trung
+      utterance.rate = 1.0;  // Tốc độ bình thường
+      synth.speak(utterance);
     }
-    
+
+    // Đảm bảo lấy được danh sách giọng nói trên một số trình duyệt
     window.speechSynthesis.onvoiceschanged = () => synth.getVoices();
   </script>
 </body>
