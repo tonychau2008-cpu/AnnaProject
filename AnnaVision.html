@@ -1,67 +1,72 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>ANNA IDOL MASTER 2026</title>
-    <style>
-        body { background: #000; color: #0ff; font-family: sans-serif; text-align: center; padding: 20px; }
-        .vision-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
-        .cam-box { border: 2px solid #0ff; border-radius: 15px; padding: 10px; width: 45%; background: #050505; box-shadow: 0 0 15px #0ff; }
-        video { width: 100%; aspect-ratio: 16/9; border-radius: 10px; border: 1px solid #f0f; }
-        .control { margin-top: 30px; border: 2px solid #f0f; border-radius: 20px; padding: 25px; display: inline-block; width: 80%; }
-        .input-url { width: 90%; padding: 10px; background: #111; border: 1px solid #0ff; color: #0ff; border-radius: 8px; margin-bottom: 20px; }
-        .btn { padding: 15px 40px; border-radius: 50px; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; margin: 10px; }
-        #pBtn { background: #0ff; color: #000; }
-        #mBtn { background: #f0f; color: #fff; }
-        #mBtn.active { background: #0f0; box-shadow: 0 0 20px #0f0; }
-        #reply { color: #0f0; font-size: 24px; font-weight: bold; margin-top: 20px; min-height: 50px; }
-    </style>
+  <meta charset="UTF-8">
+  <title>ANNA IDOL MASTER</title>
+  <style>
+    body { background: #000; color: #0ff; font-family: sans-serif; text-align: center; padding: 20px; }
+    .vision-grid { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px; }
+    .cam-box { border: 2px solid #0ff; border-radius: 15px; background: #050505; width: 45%; min-width: 320px; padding: 10px; box-shadow: 0 0 15px #0ff; }
+    video { width: 100%; aspect-ratio: 16/9; border-radius: 10px; border: 1px solid #f0f; object-fit: cover; }
+    .control { border: 2px solid #f0f; border-radius: 20px; padding: 25px; display: inline-block; width: 85%; background: rgba(255,0,255,0.05); }
+    .input-url { width: 90%; padding: 12px; background: #111; border: 1px solid #0ff; color: #0ff; border-radius: 10px; margin-bottom: 20px; }
+    .btn { padding: 15px 40px; border-radius: 50px; font-weight: bold; border: none; cursor: pointer; transition: 0.3s; margin: 10px; font-size: 16px; }
+    #pBtn { background: #0ff; color: #000; }
+    #mBtn { background: #f0f; color: #fff; }
+    #mBtn.active { background: #0f0; box-shadow: 0 0 25px #0f0; }
+    #reply { color: #0f0; font-size: 26px; font-weight: bold; margin-top: 25px; min-height: 60px; text-shadow: 0 0 10px #0f0; }
+  </style>
 </head>
 <body>
-    <h2>💠 ANNA IDOL MASTER</h2>
-    <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec mới vào đây...">
-    <div class="vision-grid">
-        <div class="cam-box"><video id="v1" autoplay playsinline muted></video><select id="s1" onchange="ch(1)"></select></div>
-        <div class="cam-box"><video id="v2" autoplay playsinline muted></video><select id="s2" onchange="ch(2)"></select></div>
-    </div>
-    <div class="control">
-        <button id="pBtn" class="btn" onclick="init()">⚡ TỈNH THỨC</button>
-        <button id="mBtn" class="btn" onclick="talk()">🎤 NÓI VỚI ANNA</button>
-        <div id="reply"></div>
-    </div>
-    <script>
-        let streams = {1:null, 2:null}, rec, isL = false, synth = window.speechSynthesis;
-        async function init() {
-            const devs = await navigator.mediaDevices.enumerateDevices();
-            const cams = devs.filter(d => d.kind === 'videoinput');
-            [1,2].forEach(n => {
-                const sel = document.getElementById('s'+n);
-                sel.innerHTML = cams.map((c,i) => `<option value="${c.deviceId}">${c.label || 'Cam '+i}</option>`).join('');
-                if(n===2 && cams.length > 1) sel.selectedIndex = 1;
-            });
-            ch(1); ch(2); setupAI();
-            document.getElementById('reply').innerText = "Hệ thống Master đã sẵn sàng!";
+  <h2>💠 ANNA IDOL MASTER 2026</h2>
+  <input type="text" id="gasUrl" class="input-url" placeholder="Dán link /exec mới của bạn vào đây...">
+  <div class="vision-grid">
+    <div class="cam-box"><video id="v1" autoplay playsinline muted></video><select id="s1" onchange="ch(1)"></select></div>
+    <div class="cam-box"><video id="v2" autoplay playsinline muted></video><select id="s2" onchange="ch(2)"></select></div>
+  </div>
+  <div class="control">
+    <button id="pBtn" class="btn" onclick="init()">⚡ TỈNH THỨC</button>
+    <button id="mBtn" class="btn" onclick="talk()">🎤 NÓI VỚI ANNA</button>
+    <div id="reply"></div>
+  </div>
+  <script>
+    let streams = {1:null, 2:null}, rec, isL = false, synth = window.speechSynthesis;
+    async function init() {
+      await navigator.mediaDevices.getUserMedia({video:true, audio:true});
+      const devs = await navigator.mediaDevices.enumerateDevices();
+      const cams = devs.filter(d => d.kind === 'videoinput');
+      [1,2].forEach(n => {
+        const sel = document.getElementById('s'+n);
+        sel.innerHTML = cams.map((c,i) => `<option value="${c.deviceId}">${c.label || 'Cam '+i}</option>`).join('');
+        if(n===2 && cams.length > 1) {
+          const camoIdx = cams.findIndex(c => c.label.toLowerCase().includes('camo'));
+          sel.selectedIndex = camoIdx !== -1 ? camoIdx : 1;
         }
-        async function ch(n) {
-            const id = document.getElementById('s'+n).value;
-            if(streams[n]) streams[n].getTracks().forEach(t => t.stop());
-            streams[n] = await navigator.mediaDevices.getUserMedia({video: {deviceId: id}});
-            document.getElementById('v'+n).srcObject = streams[n];
-        }
-        function setupAI() {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            rec = new SR(); rec.lang = 'vi-VN';
-            rec.onresult = (e) => {
-                const txt = e.results[0][0].transcript;
-                const url = document.getElementById('gasUrl').value;
-                fetch(url + "?q=" + encodeURIComponent(txt)).then(r => r.text()).then(d => {
-                    document.getElementById('reply').innerText = d;
-                    const u = new SpeechSynthesisUtterance(d); u.lang='vi-VN'; u.pitch=1.4; synth.speak(u);
-                });
-            };
-            rec.onend = () => { isL=false; document.getElementById('mBtn').classList.remove('active'); };
-        }
-        function talk() { rec.start(); isL=true; document.getElementById('mBtn').classList.add('active'); }
-    </script>
+      });
+      ch(1); ch(2); setupAI();
+      document.getElementById('reply').innerText = "Anna đã sẵn sàng!";
+    }
+    async function ch(n) {
+      const id = document.getElementById('s'+n).value;
+      if(streams[n]) streams[n].getTracks().forEach(t => t.stop());
+      streams[n] = await navigator.mediaDevices.getUserMedia({video: {deviceId: id}});
+      document.getElementById('v'+n).srcObject = streams[n];
+    }
+    function setupAI() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      rec = new SR(); rec.lang = 'vi-VN';
+      rec.onresult = (e) => {
+        const txt = e.results[0][0].transcript;
+        const url = document.getElementById('gasUrl').value;
+        document.getElementById('reply').innerText = "Anna đang suy nghĩ...";
+        fetch(url + "?q=" + encodeURIComponent(txt)).then(r => r.text()).then(d => {
+          document.getElementById('reply').innerText = d;
+          const u = new SpeechSynthesisUtterance(d); u.lang='vi-VN'; u.pitch=1.4; synth.speak(u);
+        });
+      };
+      rec.onend = () => { isL=false; document.getElementById('mBtn').classList.remove('active'); };
+    }
+    function talk() { if(!isL) { rec.start(); isL=true; document.getElementById('mBtn').classList.add('active'); } else { rec.stop(); } }
+  </script>
 </body>
 </html>
